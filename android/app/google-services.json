@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "317084422832",
+    "firebase_url": "https://chatdouglas.firebaseio.com",
+    "project_id": "chatdouglas",
+    "storage_bucket": "chatdouglas.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317084422832:android:b66b8adde41cbe8258e175",
+        "android_client_info": {
+          "package_name": "com.chatdouglas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317084422832-2t3e85bs1aer1no98vira9979mbacanm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chatdouglas",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "317084422832-qg0n2v3he2vvojb18ujua988tq358bkv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVigLa-pUx0WlJsMox9RJ1L1YyfiIfrJM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317084422832-qg0n2v3he2vvojb18ujua988tq358bkv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

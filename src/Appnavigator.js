@@ -5,6 +5,7 @@ import Home from './Screens/Home/Home'
 import Friends from './Screens/Friendlist/Friends'
 import Profile from './Screens/Profileuser/Profile'
 
+
 const tabNavigate = createMaterialTopTabNavigator({
 
     home: {
@@ -28,7 +29,7 @@ const tabNavigate = createMaterialTopTabNavigator({
 
 }, {
     initialLayout: 'home',
-    initialRouteName : 'friends',
+    initialRouteName : 'home',
     swipeEnabled: true,
     tabBarOptions: {
         style: {

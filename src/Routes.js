@@ -9,6 +9,7 @@ import Profile from './Screens/Profileuser/Profile'
 import Landing from './Screens/Landing/Landing'
 import Register from './Screens/Register/Register'
 import Login from './Screens/Login/Login'
+import Loading from './Components/Loading/Loading'
 
 
 const AppStack = createStackNavigator({
@@ -45,42 +46,42 @@ const AppStack = createStackNavigator({
     initialRouteName: 'Apps',
 })
 
-// const AuthStack = createStackNavigator({
+const AuthStack = createStackNavigator({
 
-//     login: {
-//         screen: Login,
-//         navigationOptions: {
-//             header: null
-//         }
-//     },
-//     regis: {
-//         screen: Register,
-//         navigationOptions: {
-//             header: null
-//         }
-//     },
-//     landing: {
-//         screen: Landing,
-//         navigationOptions: {
-//             header: null
-//         }
-//     },
-// }, {
-//     initialRouteName: 'landing'
-// })
+    login: {
+        screen: Login,
+        navigationOptions: {
+            header: null
+        }
+    },
+    regis: {
+        screen: Register,
+        navigationOptions: {
+            header: null
+        }
+    },
+    landing: {
+        screen: Landing,
+        navigationOptions: {
+            header: null
+        }
+    },
+}, {
+    initialRouteName: 'landing'
+})
 const Routes = createAppContainer(createSwitchNavigator({
 
-    // Auth: {
-    //     screen: AuthStack
-    // },
+    Auth: {
+        screen: AuthStack
+    },
     App: {
         screen: AppStack
     },
-    // LoadScreen: {
-    //     screen: Loading
-    // }
+    LoadScreen: {
+        screen: Loading
+    }
 }, {
-    initialRouteName: 'App',
+    initialRouteName: 'LoadScreen',
     headerMode: 'none'
 }))
 

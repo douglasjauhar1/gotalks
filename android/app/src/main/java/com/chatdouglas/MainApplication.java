@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
-// import com.airbnb.android.react.maps.MapsPackage;
 import com.swmansion.reanimated.ReanimatedPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.swmansion.rnscreens.RNScreensPackage;
@@ -34,7 +33,9 @@ public class MainApplication extends Application implements ReactApplication {
           
           // Packages that cannot be autolinked yet can be added manually here, for example:
           //  packages.add(new MapsPackage());
-          //  packages.add(new MainReactPackage());
+          //  packages.add(new MainReactPackage(),
+            // new GeolocationPackage(),
+            // new GeolocationPackage());
           return packages;
         }
 
