@@ -28,6 +28,7 @@ const tabNavigate = createMaterialTopTabNavigator({
 
 }, {
     initialLayout: 'home',
+    initialRouteName : 'friends',
     swipeEnabled: true,
     tabBarOptions: {
         style: {
