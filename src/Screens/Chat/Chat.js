@@ -223,12 +223,12 @@ export default class Chat extends Component {
         {...props}
         wrapperStyle={{
           right: {
-            backgroundColor: Color.indicator,
+            backgroundColor: Color.secondary,
           },
         }}
         textStyle={{
             right: {
-          color: Color.textDark,
+          color: Color.primary,
         }
         
       }}
@@ -244,7 +244,7 @@ export default class Chat extends Component {
             marginRight: 20,
             marginBottom: 5,
           }}>
-          <Ionicons name='ios-paper-plane' size={35} color={Color.primary} />
+          <Ionicons name='ios-paper-plane' size={35} color={Color.secondary} />
         </View>
       </Send>
     );
@@ -252,8 +252,8 @@ export default class Chat extends Component {
   
   render() {
     return (
-      <View style={{flex: 1, backgroundColor: Color.secondary}}>
-      <StatusBar barStyle="dark-content" backgroundColor={Color.darkprimary}></StatusBar>
+      <View style={{flex: 1, backgroundColor: 'white'}}>
+      <StatusBar barStyle="dark-content" backgroundColor={'#eeeee'}></StatusBar>
        
         <GiftedChat
           renderSend={this.renderSend}

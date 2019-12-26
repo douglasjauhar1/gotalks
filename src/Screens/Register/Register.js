@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {Icon} from 'native-base'
-import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid} from 'react-native'
+import {Text, View, TextInput, TouchableHighlight, StyleSheet, ToastAndroid, Image} from 'react-native'
 import {Button} from 'native-base'
 import { firebase } from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
@@ -135,28 +135,48 @@ export default class Register extends Component {
   render() {
     return (
         <View style={styles.container}>
-        <View style={styles.circle}/>
-       <View style={{ marginTop : 40}}>
-       </View>
-       <View style={{marginHorizontal : 32}}>
-       <Text style={styles.header}>Register Page</Text>
-       <Toast visible={this.state.visible} message={this.state.errorMessage} />
-       <TextInput style={styles.input} placeholder="Name" onChangeText={name => this.setState({ name })}/>
-           <TextInput style={styles.inputs} placeholder="Username" onChangeText={email => this.setState({ email })}/>
-           <TextInput style={styles.inputs} placeholder="Password" secureTextEntry onChangeText={password => this.setState({ password })}/>
-           <Button
-          style={styles.btn} onPress={this.submitRegis}>
-             <Text>Register Now</Text>
-        </Button>
-        <View>
-           <TouchableOpacity onPress={()=>this.props.navigation.navigate('login')}>
-           <Text>
-               Go Login
-           </Text>
-           </TouchableOpacity>
-       </View>
-       </View>
-       </View>
+                 <Image source={{uri : 'https://i.imgur.com/zJN8o6q.png'}} style={styles.logo}/>
+                 <Toast visible={this.state.visible} message={this.state.errorMessage} />
+        <View style={styles.inputContainer}>
+        <Icon type="FontAwesome5" name="user-circle" style={styles.inputIcon}/>
+         
+          {/* <TextInput style={styles.input1}
+              placeholder="Your Name"
+              keyboardType="name"
+              underlineColorAndroid='transparent'
+              onChangeText={name => this.setState({ name })}/> */}
+          <TextInput style={styles.inputs}
+          placeholder="Your Name"
+          keyboardType="name"
+          underlineColorAndroid='transparent'
+          onChangeText={name => this.setState({ name })}/>
+        </View>
+        
+        <View style={styles.inputContainer}>
+        <Icon type="MaterialCommunityIcons" name="email" style={styles.inputIcon}/>
+          <TextInput style={styles.inputs}
+                placeholder="Email"
+                keyboardType="email-address"
+                underlineColorAndroid='transparent'
+                onChangeText={email => this.setState({ email })}/>
+        </View>
+        <View style={styles.inputContainer}>
+            <Icon type="MaterialCommunityIcons" name="lock" style={styles.inputIcon}/>
+          <TextInput style={styles.inputs}
+              placeholder="Password"
+              secureTextEntry={true}
+              underlineColorAndroid='transparent'
+              onChangeText={(password) => this.setState({password})}/>
+        </View>
+        <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={this.submitRegis}>
+          <Text style={styles.loginText}>Register Now</Text>
+        </TouchableHighlight>
+
+
+        <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('login')}>
+            <Text>Login</Text>
+        </TouchableHighlight>
+      </View>
     );
   }
 }
@@ -174,85 +194,60 @@ const Toast = (props) => {
     return null;
 };
 const styles = StyleSheet.create({
-    container : {
-        flex : 1,
-        backgroundColor : '#304E6C'
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#DCDCDC',
     },
-    circle : {
-        width : 450,
-        height : 450,
-        borderRadius : 500/2,
-        backgroundColor : '#fff',
-        position : 'absolute',
-        left : -120,
-        top : -20
-    }, 
-    imgs : {
-        height : 150,
-        width : 150,
-      
-    }, 
-    btn : {
-        borderWidth : StyleSheet.hairlineWidth,
-        borderColor : '#1A73E8',
-        borderRadius : 30,
-        marginTop : 20,
-        width : 210,
-        alignItems : 'center',
-        backgroundColor : '#fff',
-        justifyContent : 'center',
-        alignItems : 'center'
+    inputContainer: {
+        borderBottomColor: '#F5FCFF',
+        backgroundColor: '#FFFFFF',
+        borderRadius:30,
+        borderBottomWidth: 1,
+        width:250,
+        height:45,
+        marginBottom:20,
+        flexDirection: 'row',
+        alignItems:'center'
     },
-    go : {
-     textAlign :'center',
-     color : 'red'   
+    input1:{
+        height:60,
+        marginLeft:16,
+        borderBottomColor: '#FFFFFF',
+        flex:1,
     },
-    header : {
-        fontWeight : '700',
-        fontSize : 24,
-        color : '#304E6C',
-        marginBottom : 130
+    inputs:{
+        height:45,
+        marginLeft:16,
+        borderBottomColor: '#FFFFFF',
+        flex:1,
     },
-    input : {
-        marginTop : -90,
-        right : 20,
-        height : 50,
-        borderWidth : StyleSheet.hairlineWidth,
-        borderColor : '#1A73E8',
-        borderRadius : 30,
-        paddingHorizontal : 16,
-        color : '#514E54',
-        
+    logo :{
+        width : 140,
+        height : 150
+      },
+    inputIcon:{
+      width:30,
+      height:30,
+      marginLeft:15,
+      justifyContent: 'center',
+      color : '#30A5E7',
+      fontSize : 28
     },
-    inputs : {
-        marginTop : 20,
-        right : 20,
-        height : 50,
-        borderWidth : StyleSheet.hairlineWidth,
-        borderColor : '#1A73E8',
-        borderRadius : 30,
-        paddingHorizontal : 16,
-        color : '#514E54',
-      
+    buttonContainer: {
+      height:45,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom:20,
+      width:250,
+      borderRadius:30,
     },
-    input1 : {
-        marginTop : -130,
-        right : 20,
-        height : 50,
-        borderWidth : StyleSheet.hairlineWidth,
-        borderColor : '#1A73E8',
-        borderRadius : 30,
-        paddingHorizontal : 16,
-        color : '#514E54',
-      
+    loginButton: {
+      backgroundColor: "#00b5ec",
     },
-    continue : {
-        width : 70,
-        height : 70,
-        borderRadius : 70/2,
-        backgroundColor : '#FCCA38',
-        alignItems : 'center',
-        justifyContent : 'center',
-        bottom : 80
+    loginText: {
+      color: 'white',
     }
-})
+  });

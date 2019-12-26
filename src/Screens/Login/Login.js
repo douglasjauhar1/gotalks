@@ -2,7 +2,7 @@ import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createAppContainer } from 'react-navigation'
 import React, { Component } from 'react';
 import {Icon} from 'native-base'
-import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid} from 'react-native'
+import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid , TouchableHighlight, Image} from 'react-native'
 import {Button} from 'native-base'
 import { firebase } from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
@@ -115,33 +115,37 @@ export default class Login extends Component {
         );
     }
     return (
-        <View style={styles.container}>
-        <View style={styles.circle}/>
-       <View style={{ marginTop : 40}}>
-       </View>
-       <View style={{marginHorizontal : 32}}>
-       <Text style={styles.header}>Login Page</Text>
-       <TextInput style={styles.input} placeholder="Email"onChangeText={email => this.setState({ email })} />
-           <TextInput style={styles.inputs} placeholder="Password" secureTextEntry onChangeText={password => this.setState({ password })}/>
-           <Button
-          style={styles.btn}>
-              <Icon type="FontAwesome5" name="google" style={{color : '#304E6C', fontWeight : 600}}/>
-             <Text>Signin With Google</Text>
-        </Button>
-       <View>
-           <TouchableOpacity onPress={()=>this.props.navigation.navigate('regis')}>
-           <Text>
-               Don't Have Account ? Register Here
-           </Text>
-           </TouchableOpacity>
-       </View>
-       <View style={{alignItems : 'flex-end', marginTop : 64}}>
-           <TouchableOpacity style={styles.continue} onPress={this.handleLogin}>
-           <Icon type="MaterialIcons" name="arrow-forward" style={{color : '#4A3014', fontWeight : 600}}/>
-           </TouchableOpacity>
-       </View>
-       </View>
-       </View>
+      <View style={styles.container}>
+    
+          <Image source={{uri : 'https://i.imgur.com/zJN8o6q.png'}} style={styles.logo}/>
+        
+      <View style={styles.inputContainer}>
+      <Icon type="MaterialCommunityIcons" name="email" style={styles.inputIcon}/>
+        <TextInput style={styles.inputs}
+            placeholder="Email"
+            keyboardType="email-address"
+            underlineColorAndroid='transparent'
+            onChangeText={email => this.setState({ email })}/>
+      </View>
+      
+      <View style={styles.inputContainer}>
+      <Icon type="MaterialCommunityIcons" name="lock" style={styles.inputIcon}/>
+        <TextInput style={styles.inputs}
+            placeholder="Password"
+            secureTextEntry={true}
+            underlineColorAndroid='transparent'
+            onChangeText={(password) => this.setState({password})}/>
+      </View>
+
+      <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={this.handleLogin}>
+        <Text style={styles.loginText}>Login</Text>
+      </TouchableHighlight>
+
+
+      <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('regis')}>
+          <Text>Register</Text>
+      </TouchableHighlight>
+    </View>
     );
   }
 }
@@ -160,74 +164,54 @@ const Toast = (props) => {
     return null;
 };
 const styles = StyleSheet.create({
-    container : {
-        flex : 1,
-        backgroundColor : '#304E6C'
-    },
-    circle : {
-        width : 450,
-        height : 450,
-        borderRadius : 500/2,
-        backgroundColor : '#fff',
-        position : 'absolute',
-        left : -120,
-        top : -20
-    }, 
-    imgs : {
-        height : 150,
-        width : 150,
-      
-    }, 
-    btn : {
-        borderWidth : StyleSheet.hairlineWidth,
-        borderColor : '#1A73E8',
-        borderRadius : 30,
-        marginTop : 20,
-        width : 210,
-        alignItems : 'center',
-        backgroundColor : '#fff',
-        justifyContent : 'center',
-        alignItems : 'center'
-    },
-    go : {
-     textAlign :'center',
-     color : 'red'   
-    },
-    header : {
-        fontWeight : '700',
-        fontSize : 24,
-        color : '#304E6C',
-        marginBottom : 130
-    },
-    input : {
-        marginTop : -90,
-        right : 20,
-        height : 50,
-        borderWidth : StyleSheet.hairlineWidth,
-        borderColor : '#1A73E8',
-        borderRadius : 30,
-        paddingHorizontal : 16,
-        color : '#514E54',
-        
-    },
-    inputs : {
-        marginTop : 20,
-        right : 20,
-        height : 50,
-        borderWidth : StyleSheet.hairlineWidth,
-        borderColor : '#1A73E8',
-        borderRadius : 30,
-        paddingHorizontal : 16,
-        color : '#514E54',
-      
-    },
-    continue : {
-        width : 70,
-        height : 70,
-        borderRadius : 70/2,
-        backgroundColor : '#FCCA38',
-        alignItems : 'center',
-        justifyContent : 'center',
-        bottom : 80
-    }
-})
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#DCDCDC',
+  },
+  inputContainer: {
+      borderBottomColor: '#F5FCFF',
+      backgroundColor: '#FFFFFF',
+      borderRadius:30,
+      borderBottomWidth: 1,
+      width:250,
+      height:45,
+      marginBottom:20,
+      flexDirection: 'row',
+      alignItems:'center'
+  },
+  inputs:{
+      height:45,
+      marginLeft:16,
+      borderBottomColor: '#FFFFFF',
+      flex:1,
+  },
+  logo :{
+    width : 140,
+    height : 150
+  },
+  inputIcon:{
+    width:30,
+    height:30,
+    marginLeft:15,
+    justifyContent: 'center',
+    color : '#30A5E7',
+    fontSize : 28
+  },
+  buttonContainer: {
+    height:45,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom:20,
+    width:250,
+    borderRadius:30,
+  },
+  loginButton: {
+    backgroundColor: "#00b5ec",
+  },
+  loginText: {
+    color: 'white',
+  }
+});

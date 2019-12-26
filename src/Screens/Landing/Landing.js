@@ -28,16 +28,16 @@ class Landing extends Component {
                 <StatusBar backgroundColor={Color.primary} barStyle="light-content" />
                 <View style={style.topContent}>
                     <View style={style.imgContainer}>
-                        <Image source={require('../../../public/Asset/Image/Arkademy-Putih.png')} style={style.img} />
+                        <Image style={style.img} source={{uri : 'https://i.imgur.com/zJN8o6q.png'}} />
                     </View>
                 </View>
                 <View style={style.bottomContent}>
                     <Button style={style.btnLogin} onPress={this.goLogin}>
                         <Text style={style.Text2}>Login</Text>
                     </Button>
-                    <TouchableHighlight style={style.btnLogin2} onPress={this.goRegis}>
+                    <Button style={style.btnLogin2} onPress={this.goRegis}>
                         <Text style={style.Text}>Register</Text>
-                    </TouchableHighlight>
+                    </Button>
                 </View>
             </View>
         )
@@ -64,9 +64,9 @@ const style = StyleSheet.create({
         alignItems: 'center'
     },
     img: {
-        width: null,
-        height: null,
-        flex: 1,
+        width: 400,
+        height: 200,
+        flex: 0,
         resizeMode: "contain"
     },
     imgContainer: {
@@ -82,15 +82,16 @@ const style = StyleSheet.create({
         alignItems: 'center'
     },
     btnLogin2: {
-        width: 200,
-        backgroundColor: Color.primary,
-        borderRadius: 10,
+        width: 300,
+        backgroundColor: Color.secondary,
+        borderRadius: 5,
+        height : 50,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20
     },
     Text2: {
-        color: Color.primary,
+        color: Color.secondary,
         fontFamily: 'Roboto-Bold'
     }
 })

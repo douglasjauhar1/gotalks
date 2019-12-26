@@ -33,7 +33,7 @@ const tabNavigate = createMaterialTopTabNavigator({
     swipeEnabled: true,
     tabBarOptions: {
         style: {
-            backgroundColor: '#25594A',
+            backgroundColor: '#30A5E7',
         },
         indicatorStyle: {
             backgroundColor: 'white'
