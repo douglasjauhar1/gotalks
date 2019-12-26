@@ -10,6 +10,7 @@ import Landing from './Screens/Landing/Landing'
 import Register from './Screens/Register/Register'
 import Login from './Screens/Login/Login'
 import Loading from './Components/Loading/Loading'
+import Chat from './Screens/Chat/Chat'
 
 
 const AppStack = createStackNavigator({
@@ -24,6 +25,12 @@ const AppStack = createStackNavigator({
         screen: Profile,
         navigationOptions: {
             header: null
+        }
+    },
+    chat : {
+        screen :  Chat,
+        navigationOptions:{
+            header : null,
         }
     },
     Apps: {

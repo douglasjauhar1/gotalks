@@ -3,11 +3,16 @@ import {Icon} from 'native-base'
 import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid} from 'react-native'
 import {Button} from 'native-base'
 import { firebase } from '@react-native-firebase/auth';
+import database from '@react-native-firebase/database';
+import Geolocation from 'react-native-geolocation-service';
+import { PermissionsAndroid } from 'react-native';
 export default class Register extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
+            latitude: '',
+            longitude: '',
             name: '',
             email: '',
             password: '',
@@ -17,9 +22,70 @@ export default class Register extends Component {
         this.goBack = this.goBack.bind(this)
         this.submitRegis = this.submitRegis.bind(this);
     }
+
     goBack() {
         const { goBack } = this.props.navigation;
         goBack();
+    }
+
+    async componentDidMount() {
+        try {
+    const granted = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        Geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords
+                this.setState({ latitude, longitude })
+            },
+            (error) => {
+                this.setState({
+                    errorMessage: "Check youre GPS",
+                    visible: true
+                }, () => {
+                    this.hideToast()
+                })
+                return
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+    } else {
+        const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            Geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords
+                    this.setState({ latitude, longitude })
+                },
+                (error) => {
+                    this.setState({
+                        errorMessage: "Check youre GPS",
+                        visible: true
+                    }, () => {
+                        this.hideToast()
+                    })
+                    return
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+            );
+        } else {
+                    this.setState({
+                        errorMessage: "location denied",
+                        visible: true
+                    }, () => {
+                        this.hideToast()
+                    })
+                    return
+                }
+            }
+        } catch (err) {
+            this.setState({
+                errorMessage: err,
+                visible: true
+            }, () => {
+                this.hideToast()
+            })
+            return
+        }
     }
 
     hideToast = () => {
@@ -42,6 +108,17 @@ export default class Register extends Component {
         }
         firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(res => {
+                console.log(res)
+                database().ref('/users/' + res.user.uid)
+                    .set({
+                        name: this.state.name,
+                        status: 'Online',
+                        email: this.state.email,
+                        photo: 'https://image.flaticon.com/icons/png/512/147/147144.png',
+                        latitude: this.state.latitude || null,
+                        longitude: this.state.longitude || null,
+                        id: res.user.uid,
+                    })
                 return res.user.updateProfile({
                     displayName: this.state.name
                 })

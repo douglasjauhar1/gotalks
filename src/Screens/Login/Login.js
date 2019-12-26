@@ -5,7 +5,9 @@ import {Icon} from 'native-base'
 import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid} from 'react-native'
 import {Button} from 'native-base'
 import { firebase } from '@react-native-firebase/auth';
-
+import database from '@react-native-firebase/database';
+import AsyncStorage from '@react-native-community/async-storage';
+import Geolocation from 'react-native-geolocation-service';
 
 export default class Login extends Component {
     constructor(props) {
@@ -20,7 +22,7 @@ export default class Login extends Component {
         }
 
         this.goBack = this.goBack.bind(this);
-        this.loginSubmit = this.loginSubmit.bind(this)
+        // this.loginSubmit = this.loginSubmit.bind(this)
     }
 
     goBack() {
@@ -33,24 +35,77 @@ export default class Login extends Component {
             visible: false,
         });
     };
+    // loginSubmit = () => {
+    //     this.setState({ Onprosess: true })
+    //     const { email, password } = this.state
+    //     firebase.auth().signInWithEmailAndPassword(email, password)
+    //         .then(res => {
+    //             this.setState({ Onprosess: false })
+    //         })
+    //         .catch(err => {
+    //             this.setState({
+    //                 errorMessage: err.message,
+    //                 visible: true
+    //             }, () => this.hideToast())
+    //         })
+    // }
 
-
-
-    loginSubmit = () => {
-        this.setState({ Onprosess: true })
-        const { email, password } = this.state
-        firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(res => {
-                this.setState({ Onprosess: false })
+    handleLogin = () => {
+        const {email, password} = this.state;
+        if (email.length < 6) {
+          ToastAndroid.show(
+            'Please input a valid email address',
+            ToastAndroid.LONG,
+          );
+        } else if (password.length < 6) {
+          ToastAndroid.show(
+            'Password must be at least 6 characters',
+            ToastAndroid.LONG,
+          );
+        } else {
+          database()
+            .ref('users/')
+            .orderByChild('/email')
+            .equalTo(email)
+            .once('value', result => {
+              let data = result.val();
+              if (data !== null) {
+                let user = Object.values(data);
+    
+                AsyncStorage.setItem('user.email', user[0].email);
+                AsyncStorage.setItem('user.name', user[0].name);
+                AsyncStorage.setItem('user.photo', user[0].photo);
+              }
+            });
+          firebase
+            .auth()
+            .signInWithEmailAndPassword(email, password)
+            .then(async response => {
+              console.log('resLoginEmail: ', response);
+    
+              database()
+                .ref('/user/' + response.user.uid)
+                .update({
+                  status: 'Online',
+                  latitude: this.state.latitude || null,
+                  longitude: this.state.longitude || null,
+                });
+             
+              await AsyncStorage.setItem('uid', response.user.uid);
+              // await AsyncStorage.setItem('user', response.user);
+              ToastAndroid.show('Login success', ToastAndroid.LONG);
+             
             })
-            .catch(err => {
-                this.setState({
-                    errorMessage: err.message,
-                    visible: true
-                }, () => this.hideToast())
-            })
-    }
-
+            .catch(error => {
+              this.setState({
+                errorMessage: error.message,
+                email: '',
+                password: '',
+              });
+              ToastAndroid.show(this.state.errorMessage, ToastAndroid.SHORT);
+            });
+        }
+      };
   render() {
     if (this.state.loding) {
         return (
@@ -74,14 +129,14 @@ export default class Login extends Component {
              <Text>Signin With Google</Text>
         </Button>
        <View>
-           <TouchableOpacity onPress={()=>this.props.navigation.navigate('register')}>
+           <TouchableOpacity onPress={()=>this.props.navigation.navigate('regis')}>
            <Text>
                Don't Have Account ? Register Here
            </Text>
            </TouchableOpacity>
        </View>
        <View style={{alignItems : 'flex-end', marginTop : 64}}>
-           <TouchableOpacity style={styles.continue} onPress={this.loginSubmit}>
+           <TouchableOpacity style={styles.continue} onPress={this.handleLogin}>
            <Icon type="MaterialIcons" name="arrow-forward" style={{color : '#4A3014', fontWeight : 600}}/>
            </TouchableOpacity>
        </View>

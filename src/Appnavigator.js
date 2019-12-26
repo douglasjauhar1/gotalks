@@ -28,8 +28,8 @@ const tabNavigate = createMaterialTopTabNavigator({
     }
 
 }, {
-    initialLayout: 'home',
-    initialRouteName : 'home',
+    // initialLayout: 'home',
+    // initialRouteName : 'home',
     swipeEnabled: true,
     tabBarOptions: {
         style: {
