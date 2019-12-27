@@ -35,20 +35,7 @@ export default class Login extends Component {
             visible: false,
         });
     };
-    // loginSubmit = () => {
-    //     this.setState({ Onprosess: true })
-    //     const { email, password } = this.state
-    //     firebase.auth().signInWithEmailAndPassword(email, password)
-    //         .then(res => {
-    //             this.setState({ Onprosess: false })
-    //         })
-    //         .catch(err => {
-    //             this.setState({
-    //                 errorMessage: err.message,
-    //                 visible: true
-    //             }, () => this.hideToast())
-    //         })
-    // }
+
 
     handleLogin = () => {
         const {email, password} = this.state;
@@ -140,7 +127,9 @@ export default class Login extends Component {
       <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={this.handleLogin}>
         <Text style={styles.loginText}>Login</Text>
       </TouchableHighlight>
-
+      <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('forget')}>
+          <Text>Forget Password?</Text>
+      </TouchableHighlight>
 
       <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('regis')}>
           <Text>Register</Text>

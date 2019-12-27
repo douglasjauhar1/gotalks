@@ -14,6 +14,7 @@ import Register from './Screens/Register/Register'
 import Login from './Screens/Login/Login'
 import Loading from './Components/Loading/Loading'
 import Chat from './Screens/Chat/Chat'
+import Forget from './Screens/Forget/Forget'
 import { Text } from 'native-base';
 
 
@@ -92,6 +93,12 @@ const AuthStack = createStackNavigator({
             header: null
         }
     },
+    forget : {
+        screen : Forget,
+        navigationOptions :{
+            header : null
+        }
+    }
 }, {
     initialRouteName: 'landing'
 })
