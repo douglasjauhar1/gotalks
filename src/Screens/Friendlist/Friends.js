@@ -8,6 +8,7 @@ import {
   PermissionsAndroid,
   Dimensions,
   TouchableOpacity,
+  StyleSheet
 } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import MapView, {Marker , PROVIDER_GOOGLE} from 'react-native-maps';
@@ -15,6 +16,7 @@ import Geolocation from 'react-native-geolocation-service';
 import styles from '../constant/styles';
 import database from '@react-native-firebase/database';
 import SafeAreaView from 'react-native-safe-area-view';
+import Carousel from 'react-native-snap-carousel';
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -132,6 +134,26 @@ export default class HomeScreen extends Component {
     });
   };
 
+  onCorouselItemChange = (index) =>{
+    let location = this.state.userList[index]
+    this._map.animateToRegion({
+      latitude: location.latitude,
+      longitude: location.longitude,
+      latitudeDelta: 0.00922,
+      longitudeDelta: 0.00421 * 1.5,
+    })
+  }
+  _renderItem = ({item}) => 
+ 
+        <View style={styless.card}>
+            <Text style={styless.name}>{ item.name }</Text>
+            <Image
+                      source={{uri: item.photo}}
+                      style={styless.imgcard}
+                    /> 
+        </View>
+
+
   render() {
     // console.warn(this.state.userList);
     return (
@@ -142,14 +164,15 @@ export default class HomeScreen extends Component {
             styles.container,
             {
               justifyContent: 'flex-start',
-              paddingHorizontal: 20,
-              paddingTop: 20,
+              paddingHorizontal: 10,
+              paddingTop: 10,
             },
           ]}>
           <MapView
-            style={{width: '100%', height: '80%'}}
+            style={{width: '100%', height: '90%'}}
             showsMyLocationButton={true}
             provider={PROVIDER_GOOGLE}
+            ref={map => this._map = map}
             showsIndoorLevelPicker={true}
             showsUserLocation={true}
             zoomControlEnabled={true}
@@ -190,7 +213,7 @@ export default class HomeScreen extends Component {
               );
             })}
           </MapView>
-          <View style={styles.menuBottom}>
+          {/* <View style={styles.menuBottom}>
             <TouchableOpacity>
               <Text
                 style={styles.buttonText}
@@ -198,9 +221,45 @@ export default class HomeScreen extends Component {
                 Get Current Location
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
+          <Carousel
+              ref={(c) => { this._carousel = c; }}
+              data={this.state.userList}
+              renderItem={this._renderItem}
+              containerCustomStyle={styless.corousel}
+              sliderWidth={Dimensions.get('window').width}
+              itemWidth={240}
+              style={{flex : 1}}
+              onSnapToItem={(index)=> this.onCorouselItemChange(index)}
+            />
         </View>
       </SafeAreaView>
     );
   }
 }
+const styless = StyleSheet.create({
+  corousel : {
+    position : 'absolute',
+    bottom : 0
+  },
+  card : {
+    backgroundColor : '#30A5E7',
+    height : 170,
+    width : 240,
+    padding : 18,
+    borderRadius : 15
+  },
+  imgcard : {
+    height : 120,
+    width : 240,
+    bottom : 0,
+    position : 'absolute',
+    borderBottomLeftRadius : 15,
+    borderBottomRightRadius : 15,
+  },
+  name : {
+    color : 'white',
+    fontSize : 18,
+    alignSelf : 'center'
+  }
+})

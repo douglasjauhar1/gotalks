@@ -83,16 +83,17 @@ export class Editprofile extends Component {
         return (
             <>
                 <Header
-                    androidStatusBarColor={Color.indicator}
+                    androidStatusBarColor={Color.secondary}
                     style={style.Header}>
-                    <IconAnt name="arrowleft" size={24} color={Color.secondary} onPress={this.goBack} style={style.Icon} />
+                    <IconAnt name="arrowleft" size={24} color={Color.primary} onPress={this.goBack} style={style.Icon} />
 
                 </Header>
                 <View style={style.container}>
                     <View style={style.topContent}>
-                        <TouchableOpacity style={style.AvatarContainer} onPress={this.selectImage}>
+                        <TouchableOpacity style={style.AvatarContainer} >
                             <Image style={style.Avatar} source={{ uri: this.state.photoURL }} />
                         </TouchableOpacity>
+                        <IconAnt name="camera" size={34} color={Color.secondary} onPress={this.selectImage} style={style.Icons} />
                     </View>
                     <View style={style.dataUser}>
                         <Form style={style.form}>
@@ -102,7 +103,7 @@ export class Editprofile extends Component {
                             </Item>
                         </Form>
                         <Button style={style.btnLogin} onPress={this.uploadImage}>
-                            <Text style={{ color: '#eee', fontFamily: 'Roboto-Bold' }}>save</Text>
+                            <Text style={{ color: '#eee', fontFamily: 'Roboto-Bold' }}>SAVE</Text>
                         </Button>
                     </View>
                 </View>
@@ -123,8 +124,8 @@ const style = StyleSheet.create({
         alignItems: 'center'
     },
     Avatar: {
-        width: 300,
-        height: 300,
+        width: null,
+        height: null,
         resizeMode: "cover",
         flex: 1,
         borderRadius: 110
@@ -138,7 +139,6 @@ const style = StyleSheet.create({
     AvatarContainer: {
         width: 150,
         height: 150,
-        backgroundColor : 'red'
     },
     dataUser: {
         flex: 3,
@@ -150,7 +150,7 @@ const style = StyleSheet.create({
         marginBottom: 50,
     },
     Header: {
-        backgroundColor: Color.primary,
+        backgroundColor: Color.secondary,
         alignItems: 'center',
         justifyContent: 'flex-start',
         paddingLeft: 20
@@ -163,7 +163,9 @@ const style = StyleSheet.create({
     Icon: {
         marginRight: 20
     },
-
+    Icons: {
+        alignItems : 'center'
+    },
 })
 
 export default Editprofile

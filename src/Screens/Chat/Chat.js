@@ -116,7 +116,7 @@ export default class Chat extends Component {
   render() {
     return (
       <View style={{flex: 1, backgroundColor: 'white'}}>
-      <StatusBar barStyle="dark-content" backgroundColor={'#eeeee'}></StatusBar>
+      <StatusBar barStyle="dark-content" style={{backgroundColor : '#30A5E7'}}></StatusBar>
        
         <GiftedChat
           renderSend={this.renderSend}

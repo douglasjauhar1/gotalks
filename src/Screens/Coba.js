@@ -1,206 +1,263 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
-  View,
+  StyleSheet,
   Text,
+  View,
+  ScrollView,
+  Animated,
   Image,
-  ToastAndroid,
-  Platform,
-  PermissionsAndroid,
   Dimensions,
   TouchableOpacity,
-} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
-import MapView, {Marker , PROVIDER_GOOGLE} from 'react-native-maps';
-import Geolocation from 'react-native-geolocation-service';
-import styles from '../constant/styles';
-import database from '@react-native-firebase/database';
-import SafeAreaView from 'react-native-safe-area-view';
+} from "react-native";
 
-const {width, height} = Dimensions.get('window');
-const ASPECT_RATIO = width / height;
-const LATITUDE_DELTA = 0.0922;
-const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+import MapView from "react-native-maps";
 
-export default class HomeScreen extends Component {
-  static navigationOptions = {
-    header: null,
-  };
+const Images = [
+  { uri: "https://i.imgur.com/sNam9iJ.jpg" },
+  { uri: "https://i.imgur.com/N7rlQYt.jpg" },
+  { uri: "https://i.imgur.com/UDrH0wm.jpg" },
+  { uri: "https://i.imgur.com/Ka8kNST.jpg" }
+]
 
+const { width, height } = Dimensions.get("window");
+
+const CARD_HEIGHT = height / 4;
+const CARD_WIDTH = CARD_HEIGHT - 50;
+
+export default class screens extends Component {
   state = {
-    initial: 'state',
-    mapRegion: null,
-    latitude: 0,
-    longitude: 0,
-    userList: [],
-    uid: null,
+    markers: [
+      {
+        coordinate: {
+          latitude: 45.524548,
+          longitude: -122.6749817,
+        },
+        title: "Best Place",
+        description: "This is the best place in Portland",
+        image: Images[0],
+      },
+      {
+        coordinate: {
+          latitude: 45.524698,
+          longitude: -122.6655507,
+        },
+        title: "Second Best Place",
+        description: "This is the second best place in Portland",
+        image: Images[1],
+      },
+      {
+        coordinate: {
+          latitude: 45.5230786,
+          longitude: -122.6701034,
+        },
+        title: "Third Best Place",
+        description: "This is the third best place in Portland",
+        image: Images[2],
+      },
+      {
+        coordinate: {
+          latitude: 45.521016,
+          longitude: -122.6561917,
+        },
+        title: "Fourth Best Place",
+        description: "This is the fourth best place in Portland",
+        image: Images[3],
+      },
+    ],
+    region: {
+      latitude: 45.52220671242907,
+      longitude: -122.6653281029795,
+      latitudeDelta: 0.04864195044303443,
+      longitudeDelta: 0.040142817690068,
+    },
   };
 
-  componentDidMount = async () => {
-    await this.getDataUser();
-    await this.getLocation();
-    // const uid = await AsyncStorage.getItem('userid');
-  };
-
-  async getDataUser(uid) {
-    this.setState({uid: uid, refreshing: true});
-    await database().ref('/users').on('child_added', data => {
-      let person = data.val();
-      console.log('ui',person)
-      if (person.id !== uid) {
-        this.setState(prevData => {
-          return {userList: [...prevData.userList, person]};
-        console.log(prevData)
-        });
-
-        this.setState({
-          refreshing: false,
-          isLoading: false,
-        });
+  componentWillMount() {
+    this.index = 0;
+    this.animation = new Animated.Value(0);
+  }
+  componentDidMount() {
+    // We should detect when scrolling has stopped then animate
+    // We should just debounce the event listener here
+    this.animation.addListener(({ value }) => {
+      let index = Math.floor(value / CARD_WIDTH + 0.3); // animate 30% away from landing on the next item
+      if (index >= this.state.markers.length) {
+        index = this.state.markers.length - 1;
       }
+      if (index <= 0) {
+        index = 0;
+      }
+
+      clearTimeout(this.regionTimeout);
+      this.regionTimeout = setTimeout(() => {
+        if (this.index !== index) {
+          this.index = index;
+          const { coordinate } = this.state.markers[index];
+          this.map.animateToRegion(
+            {
+              ...coordinate,
+              latitudeDelta: this.state.region.latitudeDelta,
+              longitudeDelta: this.state.region.longitudeDelta,
+            },
+            350
+          );
+        }
+      }, 10);
     });
   }
 
-  hasLocationPermission = async () => {
-    if (
-      Platform.OS === 'ios' ||
-      (Platform.OS === 'android' && Platform.Version < 23)
-    ) {
-      return true;
-    }
-    const hasPermission = await PermissionsAndroid.check(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-    );
-    if (hasPermission) {
-      return true;
-    }
-    const status = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-    );
-    if (status === PermissionsAndroid.RESULTS.GRANTED) {
-      return true;
-    }
-    if (status === PermissionsAndroid.RESULTS.DENIED) {
-      ToastAndroid.show(
-        'Location Permission Denied By User.',
-        ToastAndroid.LONG,
-      );
-    } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-      ToastAndroid.show(
-        'Location Permission Revoked By User.',
-        ToastAndroid.LONG,
-      );
-    }
-    return false;
-  };
-
-  getLocation = async () => {
-    const hasLocationPermission = await this.hasLocationPermission();
-
-    if (!hasLocationPermission) {
-      return;
-    }
-
-    this.setState({loading: true}, () => {
-      Geolocation.getCurrentPosition(
-        position => {
-          let region = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            latitudeDelta: 0.00922,
-            longitudeDelta: 0.00421 * 1.5,
-          };
-          this.setState({
-            mapRegion: region,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            loading: false,
-          });
-          // console.warn(position);
-        },
-        error => {
-          this.setState({errorMessage: error});
-          // console.warn(error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 10000,
-          distanceFilter: 50,
-          forceRequestLocation: true,
-        },
-      );
-    });
-  };
-
   render() {
-    // console.warn(this.state.userList);
+    const interpolations = this.state.markers.map((marker, index) => {
+      const inputRange = [
+        (index - 1) * CARD_WIDTH,
+        index * CARD_WIDTH,
+        ((index + 1) * CARD_WIDTH),
+      ];
+      const scale = this.animation.interpolate({
+        inputRange,
+        outputRange: [1, 2.5, 1],
+        extrapolate: "clamp",
+      });
+      const opacity = this.animation.interpolate({
+        inputRange,
+        outputRange: [0.35, 1, 0.35],
+        extrapolate: "clamp",
+      });
+      return { scale, opacity };
+    });
+
     return (
-      <SafeAreaView style={{flex: 1}}>
-        <Header />
-        <View
-          style={[
-            styles.container,
-            {
-              justifyContent: 'flex-start',
-              paddingHorizontal: 20,
-              paddingTop: 20,
-            },
-          ]}>
-          <MapView
-            style={{width: '100%', height: '80%'}}
-            showsMyLocationButton={true}
-            provider={PROVIDER_GOOGLE}
-            showsIndoorLevelPicker={true}
-            showsUserLocation={true}
-            zoomControlEnabled={true}
-            showsCompass={true}
-            showsTraffic={true}
-            region={this.state.mapRegion}
-            initialRegion={{
-              latitude: -7.755322,
-              longitude: 110.381174,
-              latitudeDelta: LATITUDE_DELTA,
-              longitudeDelta: LONGITUDE_DELTA,
-            }}>
-            {this.state.userList.map(item => {
-              // console.warn(item);
-              return (
-                <Marker
-                  key={item.id}
-                  title={item.name}
-                  description={item.status}
-                  draggable
-                  coordinate={{
-                    latitude: item.latitude || 0,
-                    longitude: item.longitude || 0,
-                  }}
-                  onCalloutPress={() => {
-                    this.props.navigation.navigate('FriendProfile', {
-                      item,
-                    });
-                  }}>
-                  <View>
-                    <Image
-                      source={{uri: item.photo}}
-                      style={{width: 40, height: 40, borderRadius: 50}}
-                    />
-                    <Text>{item.name}</Text>
-                  </View>
-                </Marker>
-              );
-            })}
-          </MapView>
-          <View style={styles.menuBottom}>
-            <TouchableOpacity>
-              <Text
-                style={styles.buttonText}
-                onPress={() => this.getLocation()}>
-                Get Current Location
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
+      <View style={styles.container}>
+        <MapView
+          ref={map => this.map = map}
+          initialRegion={this.state.region}
+          style={styles.container}
+        >
+          {this.state.markers.map((marker, index) => {
+            const scaleStyle = {
+              transform: [
+                {
+                  scale: interpolations[index].scale,
+                },
+              ],
+            };
+            const opacityStyle = {
+              opacity: interpolations[index].opacity,
+            };
+            return (
+              <MapView.Marker key={index} coordinate={marker.coordinate}>
+                <Animated.View style={[styles.markerWrap, opacityStyle]}>
+                  <Animated.View style={[styles.ring, scaleStyle]} />
+                  <View style={styles.marker} />
+                </Animated.View>
+              </MapView.Marker>
+            );
+          })}
+        </MapView>
+        <Animated.ScrollView
+          horizontal
+          scrollEventThrottle={1}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={CARD_WIDTH}
+          onScroll={Animated.event(
+            [
+              {
+                nativeEvent: {
+                  contentOffset: {
+                    x: this.animation,
+                  },
+                },
+              },
+            ],
+            { useNativeDriver: true }
+          )}
+          style={styles.scrollView}
+          contentContainerStyle={styles.endPadding}
+        >
+          {this.state.markers.map((marker, index) => (
+            <View style={styles.card} key={index}>
+              <Image
+                source={marker.image}
+                style={styles.cardImage}
+                resizeMode="cover"
+              />
+              <View style={styles.textContent}>
+                <Text numberOfLines={1} style={styles.cardtitle}>{marker.title}</Text>
+                <Text numberOfLines={1} style={styles.cardDescription}>
+                  {marker.description}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </Animated.ScrollView>
+      </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    position: "absolute",
+    bottom: 30,
+    left: 0,
+    right: 0,
+    paddingVertical: 10,
+  },
+  endPadding: {
+    paddingRight: width - CARD_WIDTH,
+  },
+  card: {
+    padding: 10,
+    elevation: 2,
+    backgroundColor: "#FFF",
+    marginHorizontal: 10,
+    shadowColor: "#000",
+    shadowRadius: 5,
+    shadowOpacity: 0.3,
+    shadowOffset: { x: 2, y: -2 },
+    height: CARD_HEIGHT,
+    width: CARD_WIDTH,
+    overflow: "hidden",
+  },
+  cardImage: {
+    flex: 3,
+    width: "100%",
+    height: "100%",
+    alignSelf: "center",
+  },
+  textContent: {
+    flex: 1,
+  },
+  cardtitle: {
+    fontSize: 12,
+    marginTop: 5,
+    fontWeight: "bold",
+  },
+  cardDescription: {
+    fontSize: 12,
+    color: "#444",
+  },
+  markerWrap: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  marker: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(130,4,150, 0.9)",
+  },
+  ring: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "rgba(130,4,150, 0.3)",
+    position: "absolute",
+    borderWidth: 1,
+    borderColor: "rgba(130,4,150, 0.5)",
+  },
+});
+

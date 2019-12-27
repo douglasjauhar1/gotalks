@@ -58,28 +58,8 @@ export default class Home extends Component {
     });
   }
 
-  signOutUser = async () => {
-    try {
-      database()
-        .ref('users/' + this.state.uid)
-        .update({status: 'Offline'});
-      await AsyncStorage.clear();
-      firebase.auth().signOut();
-      ToastAndroid.show('Logout success', ToastAndroid.SHORT);
-    } catch (error) {
-      this.setState({errorMessage: error.message})
-      ToastAndroid.show('Logout error', ToastAndroid.SHORT);
-    }
-   
-  };
+
   render() {
-
-    // if(this.state.isLoading){
-    //   return(
-    //     <Loader/>
-    //   )
-    // }
-
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor={Color.darkprimary}></StatusBar>
@@ -120,7 +100,7 @@ export default class Home extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Color.secondary,
+    backgroundColor: '#bbb',
     marginTop:0,
   },
   listItem:{
