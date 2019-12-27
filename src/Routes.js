@@ -8,6 +8,7 @@ import Appnavigator from './Appnavigator'
 import Home from './Screens/Home/Home'
 import Friends from './Screens/Friendlist/Friends'
 import Profile from './Screens/Profileuser/Profile'
+import Editprofile from './Screens/Profileuser/Editprofile'
 import Landing from './Screens/Landing/Landing'
 import Register from './Screens/Register/Register'
 import Login from './Screens/Login/Login'
@@ -36,6 +37,13 @@ const AppStack = createStackNavigator({
             header : null,
         }
     },
+    editprofile : {
+        screen :  Editprofile,
+        navigationOptions:{
+            header : null,
+        }
+    },
+    
     Apps: {
         screen: Appnavigator,
         navigationOptions: {

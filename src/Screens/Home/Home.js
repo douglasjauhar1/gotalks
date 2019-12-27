@@ -61,7 +61,7 @@ export default class Home extends Component {
   signOutUser = async () => {
     try {
       database()
-        .ref('user/' + this.state.uid)
+        .ref('users/' + this.state.uid)
         .update({status: 'Offline'});
       await AsyncStorage.clear();
       firebase.auth().signOut();
