@@ -14,7 +14,6 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {firebase} from '@react-native-firebase/auth';
 import database from '@react-native-firebase/database';
 import Color from '../../../public/Style/Color'
-// import Loader from '../../Components/Loader';
 import Material from 'react-native-vector-icons/MaterialCommunityIcons'
 
 export default class Home extends Component {

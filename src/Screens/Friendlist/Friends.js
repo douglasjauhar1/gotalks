@@ -1,125 +1,206 @@
-import React, { Component} from 'react'//USE EFFECT == KOMPONEN WILLMOUNT
-import { Text, View, StyleSheet, ActivityIndicator,Platform, Image, Alert } from 'react-native'
-import MapView, { PROVIDER_GOOGLE, Marker, Callout , Polygon} from 'react-native-maps';
-import Geolocation from '@react-native-community/geolocation';
-import {request, PERMISSIONS} from 'react-native-permissions'
+import React, {Component} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ToastAndroid,
+  Platform,
+  PermissionsAndroid,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
+import MapView, {Marker , PROVIDER_GOOGLE} from 'react-native-maps';
+import Geolocation from 'react-native-geolocation-service';
+import styles from '../constant/styles';
+import database from '@react-native-firebase/database';
+import SafeAreaView from 'react-native-safe-area-view';
 
-export default class Friends extends Component {
-state = {
- coordinates : [
-  {name : '1', latitude : -6.617447, longitude : 106.823005},
-  {name : '2', latitude : -6.617085, longitude : 106.818767},
-  {name : '3', latitude : -6.616296, longitude : 106.815677},
-  ]
-}
-componentDidMount(){
-  this.requestPosition()
-}
-  requestPosition = async () =>{
-    if(Platform.OS === 'ios'){
-      console.log('Iphone' + response)
-      var response = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-    if(response === 'granted'){
-      this.locateCurrentPosition()
-    }
-    }else{
-      var response = await request(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION)
-      console.log('Android' + response)
-      if(response === 'granted'){
-        this.locateCurrentPosition()
+const {width, height} = Dimensions.get('window');
+const ASPECT_RATIO = width / height;
+const LATITUDE_DELTA = 0.0922;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+
+export default class HomeScreen extends Component {
+  // static navigationOptions = {
+  //   header: null,
+  // };
+
+  state = {
+    initial: 'state',
+    mapRegion: null,
+    latitude: 0,
+    longitude: 0,
+    userList: [],
+    uid: null,
+  };
+
+  componentDidMount = async () => {
+    await this.getDataUser();
+    await this.getLocation();
+    // const uid = await AsyncStorage.getItem('userid');
+  };
+
+  async getDataUser(uid) {
+    this.setState({uid: uid, refreshing: true});
+    await database().ref('/users').on('child_added', data => {
+      let person = data.val();
+      console.log('ui',person)
+      if (person.id !== uid) {
+        this.setState(prevData => {
+          return {userList: [...prevData.userList, person]};
+        console.log(prevData)
+        });
+
+        this.setState({
+          refreshing: false,
+          isLoading: false,
+        });
       }
-    }
+    });
   }
-  locateCurrentPosition = ()=> {
-    Geolocation.getCurrentPosition(
-      position =>{
-        console.log(JSON.stringify(position))
-        let initialPosition ={
+
+  hasLocationPermission = async () => {
+    if (
+      Platform.OS === 'ios' ||
+      (Platform.OS === 'android' && Platform.Version < 23)
+    ) {
+      return true;
+    }
+    const hasPermission = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+    if (hasPermission) {
+      return true;
+    }
+    const status = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+    if (status === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    }
+    if (status === PermissionsAndroid.RESULTS.DENIED) {
+      ToastAndroid.show(
+        'Location Permission Denied By User.',
+        ToastAndroid.LONG,
+      );
+    } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+      ToastAndroid.show(
+        'Location Permission Revoked By User.',
+        ToastAndroid.LONG,
+      );
+    }
+    return false;
+  };
+
+  getLocation = async () => {
+    const hasLocationPermission = await this.hasLocationPermission();
+
+    if (!hasLocationPermission) {
+      return;
+    }
+
+    this.setState({loading: true}, () => {
+      Geolocation.getCurrentPosition(
+        position => {
+          let region = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            latitudeDelta: 0.09,
-            longitudeDelta: 0.035,
-        }
-        this.setState({initialPosition})
-      },
-      error => Alert.alert(error.message),
-      {enableHighAccuracy : true, timeout : 100000, maximumAge : 1000}
-    )
-  }
-  sayHelo = () =>{
-    Alert.alert(
-      'Welcome to the Jungle!',
-      'This enak',
-      [
-        {
-          text : 'cancel',
-          style : 'cancel'
+            latitudeDelta: 0.00922,
+            longitudeDelta: 0.00421 * 1.5,
+          };
+          this.setState({
+            mapRegion: region,
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            loading: false,
+          });
+          // console.warn(position);
+        },
+        error => {
+          this.setState({errorMessage: error});
+          // console.warn(error);
         },
         {
-          text : 'OK'
-        }
-      ]
-    )
-  }
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 10000,
+          distanceFilter: 50,
+          forceRequestLocation: true,
+        },
+      );
+    });
+  };
+
   render() {
+    // console.warn(this.state.userList);
     return (
- 
-      <MapView style={styles.map}
-      provider= {PROVIDER_GOOGLE}
-      ref={map => this._map = map}
-      initialRegion={this.state.initialPosition}
-      >
-        <Polygon 
-        coordinates={this.state.coordinates}
-        />
-        <Marker
-        coordinate={{latitude : -6.617447, longitude :106.823005}}
-         >
-         <Callout onPress={this.sayHelo}> 
-         <Image source={require('../../../public/Asset/Image/google.png')} style={{width : 50, height : 50}}/>
-          <Text>Tempat Berenang</Text>
-        </Callout>
-        
-        </Marker>  
-        {
-          this.state.coordinates.map(marker => (
-            <Marker
-            key={marker.name}
-            coordinate={{latitude : marker.latitude, longitude : marker.longitude}}
-            title={marker.name}
-            >
-        <Callout> 
-          <Image style={{width : 50, height : 50}} source={{uri : 'https://reactjs.org/logo-og.png'}}/>
-         <Text>{marker.name}</Text>
-        </Callout>
-
-
-            </Marker>
-
-          ))
-        }
-        </MapView>
-       
-    )
+      <SafeAreaView style={{flex: 1}}>
+        {/* <Header /> */}
+        <View
+          style={[
+            styles.container,
+            {
+              justifyContent: 'flex-start',
+              paddingHorizontal: 20,
+              paddingTop: 20,
+            },
+          ]}>
+          <MapView
+            style={{width: '100%', height: '80%'}}
+            showsMyLocationButton={true}
+            provider={PROVIDER_GOOGLE}
+            showsIndoorLevelPicker={true}
+            showsUserLocation={true}
+            zoomControlEnabled={true}
+            showsCompass={true}
+            showsTraffic={true}
+            region={this.state.mapRegion}
+            initialRegion={{
+              latitude: -7.755322,
+              longitude: 110.381174,
+              latitudeDelta: LATITUDE_DELTA,
+              longitudeDelta: LONGITUDE_DELTA,
+            }}>
+            {this.state.userList.map(item => {
+              // console.warn(item);
+              return (
+                <Marker
+                  key={item.id}
+                  title={item.name}
+                  description={item.status}
+                  draggable
+                  coordinate={{
+                    latitude: item.latitude || 0,
+                    longitude: item.longitude || 0,
+                  }}
+                  onCalloutPress={() => {
+                    this.props.navigation.navigate('FriendProfile', {
+                      item,
+                    });
+                  }}>
+                  <View>
+                    <Image
+                      source={{uri: item.photo}}
+                      style={{width: 40, height: 40, borderRadius: 50}}
+                    />
+                    <Text>{item.name}</Text>
+                  </View>
+                </Marker>
+              );
+            })}
+          </MapView>
+          <View style={styles.menuBottom}>
+            <TouchableOpacity>
+              <Text
+                style={styles.buttonText}
+                onPress={() => this.getLocation()}>
+                Get Current Location
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </SafeAreaView>
+    );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    width: 400,
-    height: 400,
-    top : 0,
-    left : 0,
-    right : 0,
-    bottom : 0,
-   position : 'absolute',
-   justifyContent : 'flex-end',
-   alignItems :'center'
-    },
-    map: { 
-      flex : 1,
-      ...StyleSheet.absoluteFillObject,
-    },
-   });
-
