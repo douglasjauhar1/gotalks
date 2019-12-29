@@ -11,6 +11,15 @@ import database, {firebase} from '@react-native-firebase/database';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 
 export default class Chat extends Component {
+  static navigationOptions = ({navigation}) => {
+    return {
+      headerTitle: <TouchableOpacity onPress={()=> navigation.navigate('friend', {item:navigation.getParam('item')})}><View style={{flexDirection:'row',alignItems:'center'}}><View><Image source={{uri:navigation.getParam('item').photo}} style={{width:45, height:45,borderRadius: 100, overflow:'hidden', marginRight:10, backgroundColor:Color.darkprimary}} /></View><View><Text style={{fontSize:18, fontWeight:'bold', color:'black',}}>{navigation.getParam('item').name}</Text><Text>{navigation.getParam('item').status}</Text></View></View></TouchableOpacity>,
+      headerStyle: {
+        backgroundColor: Color.primary,
+    },
+    };
+  };
+
   
   state = {
     message: '',

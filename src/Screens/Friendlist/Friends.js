@@ -144,7 +144,7 @@ export default class HomeScreen extends Component {
     })
   }
   _renderItem = ({item}) => 
- 
+  <TouchableOpacity onPress={() => this.props.navigation.navigate('chat', {item})}>  
         <View style={styless.card}>
             <Text style={styless.name}>{ item.name }</Text>
             <Image
@@ -152,6 +152,7 @@ export default class HomeScreen extends Component {
                       style={styless.imgcard}
                     /> 
         </View>
+        </TouchableOpacity>
 
 
   render() {
@@ -164,8 +165,6 @@ export default class HomeScreen extends Component {
             styles.container,
             {
               justifyContent: 'flex-start',
-              paddingHorizontal: 10,
-              paddingTop: 10,
             },
           ]}>
           <MapView
@@ -213,15 +212,6 @@ export default class HomeScreen extends Component {
               );
             })}
           </MapView>
-          {/* <View style={styles.menuBottom}>
-            <TouchableOpacity>
-              <Text
-                style={styles.buttonText}
-                onPress={() => this.getLocation()}>
-                Get Current Location
-              </Text>
-            </TouchableOpacity>
-          </View> */}
           <Carousel
               ref={(c) => { this._carousel = c; }}
               data={this.state.userList}

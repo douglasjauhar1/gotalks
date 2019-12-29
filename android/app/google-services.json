@@ -15,7 +15,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "317084422832-2t3e85bs1aer1no98vira9979mbacanm.apps.googleusercontent.com",
+          "client_id": "317084422832-5qacv6t3qps8ssk20qda20hnkdf9ampl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chatdouglas",
+            "certificate_hash": "8100b9084eb472351e3a75a884e4001ebe76f3af"
+          }
+        },
+        {
+          "client_id": "317084422832-oqi7fgjbd757707rq38vt4vaakdcb23r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.chatdouglas",

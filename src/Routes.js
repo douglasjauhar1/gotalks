@@ -15,6 +15,7 @@ import Login from './Screens/Login/Login'
 import Loading from './Components/Loading/Loading'
 import Chat from './Screens/Chat/Chat'
 import Forget from './Screens/Forget/Forget'
+import FriendProfile from './Screens/Friendlist/FriendProfile'
 import { Text } from 'native-base';
 
 
@@ -35,7 +36,7 @@ const AppStack = createStackNavigator({
     chat : {
         screen :  Chat,
         navigationOptions:{
-            header : null,
+            
         }
     },
     editprofile : {
@@ -43,6 +44,10 @@ const AppStack = createStackNavigator({
         navigationOptions:{
             header : null,
         }
+    },
+    friend : {
+        screen : FriendProfile,
+    
     },
     
     Apps: {

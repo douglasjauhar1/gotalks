@@ -22,8 +22,8 @@ export default class Forget extends Component {
         // this.loginSubmit = this.loginSubmit.bind(this)
     }
     handleForget = async () => {
-        const {email} = this.state;
-       try {
+    const {email} = this.state;
+    try {
     await  firebase
     .auth()
     .sendPasswordResetEmail(email)

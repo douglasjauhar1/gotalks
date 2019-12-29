@@ -5,9 +5,15 @@ import {Icon} from 'native-base'
 import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid , TouchableHighlight, Image} from 'react-native'
 import {Button} from 'native-base'
 import { firebase } from '@react-native-firebase/auth';
+
 import database from '@react-native-firebase/database';
 import AsyncStorage from '@react-native-community/async-storage';
 import Geolocation from 'react-native-geolocation-service';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-community/google-signin';
 
 export default class Login extends Component {
     constructor(props) {
@@ -93,6 +99,105 @@ export default class Login extends Component {
             });
         }
       };
+      loginGoogle = async () => {
+        this.setState({Onprosess: true});
+        try {
+          const {accessToken, idToken} = await GoogleSignin.signIn();
+          const credential = firebase.auth.GoogleAuthProvider.credential(
+            idToken,
+            accessToken,
+          );
+    
+          await firebase
+            .auth()
+            .signInWithCredential(credential)
+            .then(async response => {
+              console.log('resLoginGoogle: ', response);
+              database()
+                .ref('users/')
+                .orderByChild('/email')
+                .equalTo(response.user.email)
+                .once('value', result => {
+                  let data = result.val();
+                  if (data !== null) {
+                    database()
+                      .ref('/user/' + response.user.uid)
+                      .update({
+                        name: response.user.displayName,
+                        status: 'Online',
+                        email: response.user.email,
+                        photo: response.user.photoURL,
+                        latitude: this.state.latitude || null,
+                        longitude: this.state.longitude || null,
+                        id: response.user.uid,
+                      });
+                      
+                      ToastAndroid.show('Login success', ToastAndroid.SHORT);
+                  } else {
+                    database()
+                      .ref('/users/' + response.user.uid)
+                      .set({
+                        name: response.user.displayName,
+                        status: 'Online',
+                        email: response.user.email,
+                        photo: response.user.photoURL,
+                        latitude: this.state.latitude || null,
+                        longitude: this.state.longitude || null,
+                        id: response.user.uid,
+                      });
+                  }
+                });
+                await AsyncStorage.setItem('uid', response.user.uid);
+                // await AsyncStorage.setItem('user', response.user);
+    
+    
+             
+            })
+            .catch(error => {
+              this.setState({
+                errorMessage: error.message,
+                email: '',
+                password: '',
+              });
+              ToastAndroid.show(this.state.errorMessage, ToastAndroid.SHORT);
+            });
+          this.setState({Onprosess: false});
+        } catch (error) {
+          console.warn(error);
+    
+          if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+            this.setState({Onprosess: false});
+            return;
+          } else if (error.code === statusCodes.IN_PROGRESS) {
+            this.setState(
+              {
+                errorMessage: 'In Progress..',
+                visible: true,
+                Onprosess: false,
+              },
+              () => this.hideToast(),
+            );
+          } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+            this.setState(
+              {
+                errorMessage: 'Please Install Google Play Services',
+                visible: true,
+                Onprosess: false,
+              },
+              () => this.hideToast(),
+            );
+          } else {
+            this.setState(
+              {
+                errorMessage: error.code || error.message,
+                visible: true,
+                Onprosess: false,
+              },
+              () => this.hideToast(),
+            );
+          }
+        }
+      };
   render() {
     if (this.state.loding) {
         return (
@@ -130,6 +235,19 @@ export default class Login extends Component {
       <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('forget')}>
           <Text>Forget Password?</Text>
       </TouchableHighlight>
+      <View style={{alignItems: 'center', marginVertical: 4}}>
+            <Text> ──────── OR ────────</Text>
+          </View>
+
+          {/* <View style={{alignItems: 'center', justifyContent: 'center'}}> */}
+            <GoogleSigninButton
+              style={{height: 52, width: '87%'}}
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Light}
+              onPress={this.loginGoogle}
+              disabled={this.state.isSigninInProgress}
+            />
+          {/* </View> */}
 
       <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('regis')}>
           <Text>Register</Text>
@@ -138,6 +256,11 @@ export default class Login extends Component {
     );
   }
 }
+GoogleSignin.configure({
+  scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+  webClientId:
+    '317084422832-qg0n2v3he2vvojb18ujua988tq358bkv.apps.googleusercontent.com',
+});
 
 const Toast = (props) => {
     if (props.visible) {
