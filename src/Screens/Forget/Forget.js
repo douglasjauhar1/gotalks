@@ -2,12 +2,9 @@ import { createMaterialTopTabNavigator } from 'react-navigation-tabs';
 import { createAppContainer } from 'react-navigation'
 import React, { Component } from 'react';
 import {Icon} from 'native-base'
-import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid , TouchableHighlight, Image} from 'react-native'
+import {Text, View, TextInput, TouchableOpacity, StyleSheet, ToastAndroid , TouchableHighlight, Image, Alert} from 'react-native'
 import {Button} from 'native-base'
 import { firebase } from '@react-native-firebase/auth';
-import database from '@react-native-firebase/database';
-import AsyncStorage from '@react-native-community/async-storage';
-import Geolocation from 'react-native-geolocation-service';
 
 export default class Forget extends Component {
     constructor(props) {
@@ -21,14 +18,29 @@ export default class Forget extends Component {
 
         // this.loginSubmit = this.loginSubmit.bind(this)
     }
+    login = ()=>{
+     this.props.navigation.navigate('login')
+    }
     handleForget = async () => {
     const {email} = this.state;
     try {
     await  firebase
     .auth()
     .sendPasswordResetEmail(email)
-    console.log('Password reset email sent successfully')
-    this.props.navigation.navigate('Login')
+    Alert.alert(
+      'Email Sent',
+      'Please Check Your Email',
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => console.log('OK Pressed')},
+      ],
+      {cancelable: false},
+    );
+    
   } catch (error) {
     actions.setFieldError('general', error.message)
   }
@@ -37,9 +49,7 @@ export default class Forget extends Component {
   render() {
     return (
       <View style={styles.container}>
-    
-          <Image source={{uri : 'https://i.imgur.com/zJN8o6q.png'}} style={styles.logo}/>
-        
+          <Image source={require('../../../public/Asset/Image/goTalk.png')} style={styles.logo}/>
       <View style={styles.inputContainer}>
       <Icon type="MaterialCommunityIcons" name="email" style={styles.inputIcon}/>
         <TextInput style={styles.inputs}

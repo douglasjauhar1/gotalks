@@ -28,7 +28,7 @@ class Landing extends Component {
                 <StatusBar backgroundColor={Color.primary} barStyle="light-content" />
                 <View style={style.topContent}>
                     <View style={style.imgContainer}>
-                        <Image style={style.img} source={{uri : 'https://i.imgur.com/zJN8o6q.png'}} />
+                        <Image style={style.img} source={require('../../../public/Asset/Image/goTalk.png')} />
                     </View>
                 </View>
                 <View style={style.bottomContent}>

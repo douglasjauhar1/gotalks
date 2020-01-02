@@ -25,9 +25,9 @@ export default class Chat extends Component {
     message: '',
     messageList: [],
     person: this.props.navigation.getParam('item'),
-    userId: AsyncStorage.getItem('uid'),
-    userName: AsyncStorage.getItem('user.name'),
-    userAvatar: AsyncStorage.getItem('user.photo'),
+    userId: '',
+    userName: '',
+    userAvatar: '',
   };
 
   onSend = async () => {
@@ -51,36 +51,36 @@ export default class Chat extends Component {
       };
       updates[
         'messages/' +
-          this.state.userId +
-          '/' +
-          this.state.person.id +
-          '/' +
-          msgId
+        this.state.userId +
+        '/' +
+        this.state.person.id +
+        '/' +
+        msgId
       ] = message;
       updates[
         'messages/' +
-          this.state.person.id +
-          '/' +
-          this.state.userId +
-          '/' +
-          msgId
+        this.state.person.id +
+        '/' +
+        this.state.userId +
+        '/' +
+        msgId
       ] = message;
       firebase.database()
         .ref()
         .update(updates);
-      this.setState({message: ''});
+      this.setState({ message: '' });
     }
   };
 
-  componentDidMount = async () => {
-        
-    const userId = await AsyncStorage.getItem('uid');
-    const userName = await AsyncStorage.getItem('user.name');
-    const userAvatar = await AsyncStorage.getItem('user.photo');
-    this.setState({userId, userName, userAvatar});
+  async componentDidMount() {
+    const { displayName, uid, photoURL } = await firebase.auth().currentUser;
+    const userId = uid;
+    const userName = displayName;
+    const userAvatar = photoURL;
+    this.setState({ userId, userName, userAvatar });
     database()
       .ref('messages')
-      .child(this.state.userId)
+      .child(userId)
       .child(this.state.person.id)
       .on('child_added', val => {
         this.setState(previousState => ({

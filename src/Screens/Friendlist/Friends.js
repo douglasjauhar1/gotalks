@@ -17,6 +17,9 @@ import styles from '../constant/styles';
 import database from '@react-native-firebase/database';
 import SafeAreaView from 'react-native-safe-area-view';
 import Carousel from 'react-native-snap-carousel';
+import Ionicons from 'react-native-vector-icons/Ionicons'
+
+
 
 const {width, height} = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -144,15 +147,24 @@ export default class HomeScreen extends Component {
     })
   }
   _renderItem = ({item}) => 
+  <>
   <TouchableOpacity onPress={() => this.props.navigation.navigate('chat', {item})}>  
         <View style={styless.card}>
-            <Text style={styless.name}>{ item.name }</Text>
+        <Text style={styless.name}>{ item.name }</Text>
+          <View style={{ alignItems : 'center'}}>
+      
             <Image
                       source={{uri: item.photo}}
                       style={styless.imgcard}
-                    /> 
+                    />  
         </View>
+        <Ionicons name='ios-chatbubbles'  style={styless.icon}/>
+       
+        </View>
+      
         </TouchableOpacity>
+  </>
+
 
 
   render() {
@@ -168,7 +180,7 @@ export default class HomeScreen extends Component {
             },
           ]}>
           <MapView
-            style={{width: '100%', height: '90%'}}
+            style={{width: '100%', height: '100%'}}
             showsMyLocationButton={true}
             provider={PROVIDER_GOOGLE}
             ref={map => this._map = map}
@@ -211,6 +223,7 @@ export default class HomeScreen extends Component {
                 </Marker>
               );
             })}
+           
           </MapView>
           <Carousel
               ref={(c) => { this._carousel = c; }}
@@ -233,23 +246,35 @@ const styless = StyleSheet.create({
     bottom : 0
   },
   card : {
-    backgroundColor : '#30A5E7',
+    backgroundColor : 'white',
     height : 170,
     width : 240,
     padding : 18,
-    borderRadius : 15
+    borderRadius : 15,
+    bottom : 0,
+    justifyContent : 'center',
+    alignItems : 'center',
+    borderWidth : 2,
+    borderColor : '#30A5E7'
   },
   imgcard : {
-    height : 120,
-    width : 240,
-    bottom : 0,
+    height : 60,
+    width : 60,
     position : 'absolute',
-    borderBottomLeftRadius : 15,
-    borderBottomRightRadius : 15,
+   borderRadius : 50,
+   marginTop : -10
+
   },
   name : {
-    color : 'white',
-    fontSize : 18,
-    alignSelf : 'center'
+    color : '#30A5E7',
+    fontSize : 16,
+    alignSelf : 'center',
+    textAlign : 'center',
+    position : 'absolute'
+  },
+  icon : {
+    color : '#30A5E7',
+    fontSize : 32,
+    marginTop : 100
   }
 })

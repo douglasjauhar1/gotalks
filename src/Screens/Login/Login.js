@@ -77,7 +77,7 @@ export default class Login extends Component {
               console.log('resLoginEmail: ', response);
     
               database()
-                .ref('/user/' + response.user.uid)
+                .ref('/users/' + response.user.uid)
                 .update({
                   status: 'Online',
                   latitude: this.state.latitude || null,
@@ -99,105 +99,73 @@ export default class Login extends Component {
             });
         }
       };
-      loginGoogle = async () => {
-        this.setState({Onprosess: true});
-        try {
-          const {accessToken, idToken} = await GoogleSignin.signIn();
-          const credential = firebase.auth.GoogleAuthProvider.credential(
-            idToken,
-            accessToken,
-          );
-    
-          await firebase
-            .auth()
-            .signInWithCredential(credential)
-            .then(async response => {
-              console.log('resLoginGoogle: ', response);
-              database()
-                .ref('users/')
-                .orderByChild('/email')
-                .equalTo(response.user.email)
-                .once('value', result => {
-                  let data = result.val();
-                  if (data !== null) {
-                    database()
-                      .ref('/user/' + response.user.uid)
-                      .update({
-                        name: response.user.displayName,
-                        status: 'Online',
-                        email: response.user.email,
-                        photo: response.user.photoURL,
-                        latitude: this.state.latitude || null,
-                        longitude: this.state.longitude || null,
-                        id: response.user.uid,
-                      });
-                      
-                      ToastAndroid.show('Login success', ToastAndroid.SHORT);
+     
+    loginGoogle = async () => {
+      this.setState({ Onprosess: true })
+      try {
+          await GoogleSignin.hasPlayServices();
+          const userInfo = await GoogleSignin.signIn();
+          const { idToken, accessToken } = userInfo
+          const credential = firebase.auth.GoogleAuthProvider.credential(idToken, accessToken)
+          await firebase.auth().signInWithCredential(credential)
+              .then(res => {
+                  const data = database().ref(`/users/${res.user.uid}`)
+                  if (data) {
+                      database().ref('/users/' + res.user.uid)
+                          .update({
+                              name: userInfo.user.name,
+                              status: 'Online',
+                              email: userInfo.user.email,
+                              photo: userInfo.user.photo,
+                              latitude: this.state.latitude || null,
+                              longitude: this.state.longitude || null,
+                              id: res.user.uid,
+                          })
                   } else {
-                    database()
-                      .ref('/users/' + response.user.uid)
-                      .set({
-                        name: response.user.displayName,
-                        status: 'Online',
-                        email: response.user.email,
-                        photo: response.user.photoURL,
-                        latitude: this.state.latitude || null,
-                        longitude: this.state.longitude || null,
-                        id: response.user.uid,
-                      });
+                      database().ref('/users/' + res.user.uid)
+                          .set({
+                              name: userInfo.user.name,
+                              status: 'Online',
+                              email: userInfo.user.email,
+                              photo: userInfo.user.photo,
+                              latitude: this.state.latitude || null,
+                              longitude: this.state.longitude || null,
+                              id: res.user.uid,
+                          })
                   }
-                });
-                await AsyncStorage.setItem('uid', response.user.uid);
-                // await AsyncStorage.setItem('user', response.user);
-    
-    
-             
-            })
-            .catch(error => {
-              this.setState({
-                errorMessage: error.message,
-                email: '',
-                password: '',
-              });
-              ToastAndroid.show(this.state.errorMessage, ToastAndroid.SHORT);
-            });
-          this.setState({Onprosess: false});
-        } catch (error) {
-          console.warn(error);
-    
+              })
+              .catch(err => {
+                  console.log(err)
+              })
+          this.setState({ Onprosess: false })
+
+      } catch (error) {
           if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-            this.setState({Onprosess: false});
-            return;
+              this.setState({ Onprosess: false })
+              return
           } else if (error.code === statusCodes.IN_PROGRESS) {
-            this.setState(
-              {
-                errorMessage: 'In Progress..',
-                visible: true,
-                Onprosess: false,
-              },
-              () => this.hideToast(),
-            );
+              this.setState({
+                  errorMessage: "In Progress..",
+                  visible: true,
+                  Onprosess: false
+              }, () => this.hideToast())
           } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-            this.setState(
-              {
-                errorMessage: 'Please Install Google Play Services',
-                visible: true,
-                Onprosess: false,
-              },
-              () => this.hideToast(),
-            );
+              this.setState({
+                  errorMessage: "Please Install Google Play Services",
+                  visible: true,
+                  Onprosess: false
+              }, () => this.hideToast())
           } else {
-            this.setState(
-              {
-                errorMessage: error.code || error.message,
-                visible: true,
-                Onprosess: false,
-              },
-              () => this.hideToast(),
-            );
+              this.setState({
+                  errorMessage: error.code || error.message,
+                  visible: true,
+                  Onprosess: false
+              }, () => this.hideToast())
           }
-        }
-      };
+      }
+
+
+  }
   render() {
     if (this.state.loding) {
         return (
@@ -208,9 +176,7 @@ export default class Login extends Component {
     }
     return (
       <View style={styles.container}>
-    
-          <Image source={{uri : 'https://i.imgur.com/zJN8o6q.png'}} style={styles.logo}/>
-        
+          <Image source={require('../../../public/Asset/Image/goTalk.png')} style={styles.logo}/>
       <View style={styles.inputContainer}>
       <Icon type="MaterialCommunityIcons" name="email" style={styles.inputIcon}/>
         <TextInput style={styles.inputs}
@@ -232,25 +198,25 @@ export default class Login extends Component {
       <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={this.handleLogin}>
         <Text style={styles.loginText}>Login</Text>
       </TouchableHighlight>
-      <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('forget')}>
-          <Text>Forget Password?</Text>
-      </TouchableHighlight>
       <View style={{alignItems: 'center', marginVertical: 4}}>
             <Text> ──────── OR ────────</Text>
           </View>
 
           {/* <View style={{alignItems: 'center', justifyContent: 'center'}}> */}
             <GoogleSigninButton
-              style={{height: 52, width: '87%'}}
+              style={{height: 52, width: '70%', borderRadius : 30 }}
               size={GoogleSigninButton.Size.Wide}
               color={GoogleSigninButton.Color.Light}
               onPress={this.loginGoogle}
               disabled={this.state.isSigninInProgress}
             />
           {/* </View> */}
+          <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('forget')}>
+          <Text>Forget Password?</Text>
+      </TouchableHighlight>
 
-      <TouchableHighlight style={styles.buttonContainer} onPress={()=>this.props.navigation.navigate('regis')}>
-          <Text>Register</Text>
+      <TouchableHighlight style={styles.regis} onPress={()=>this.props.navigation.navigate('regis')}>
+          <Text>Don't Have Account? Register here.</Text>
       </TouchableHighlight>
     </View>
     );
@@ -319,6 +285,9 @@ const styles = StyleSheet.create({
     marginBottom:20,
     width:250,
     borderRadius:30,
+  },
+  regis :{
+    marginTop : -20,
   },
   loginButton: {
     backgroundColor: "#00b5ec",
